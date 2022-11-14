@@ -19,7 +19,6 @@
             </plugin>
         </plugins>
     </build>
-    <packaging>jar</packaging>
 
     <name>AOCommand</name>
 

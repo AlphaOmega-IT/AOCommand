@@ -22,4 +22,8 @@ public final class AOCommand {
         //How you register for example a command.
         this.commandFramework.registerCommands(new AOCreator(this));
     }
+
+    public void registerCommand(final Object commandClazz) {
+        this.commandFramework.registerCommands(commandClazz);
+    }
 }
