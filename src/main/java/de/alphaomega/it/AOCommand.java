@@ -1,6 +1,6 @@
 package de.alphaomega.it;
 
-import de.alphaomega.it.cmdHandler.CommandFramework;
+import de.alphaomega.it.cmdhandlerapi.CommandFramework;
 import de.alphaomega.it.commands.AOCreator;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;

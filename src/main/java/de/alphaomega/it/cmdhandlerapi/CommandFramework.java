@@ -1,4 +1,4 @@
-package de.alphaomega.it.cmdHandler;
+package de.alphaomega.it.cmdhandlerapi;
 
 import lombok.NonNull;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -60,7 +60,7 @@ public class CommandFramework implements CommandExecutor {
             if (this.commandMap.containsKey(cmdLabel)) {
                 Method method = (Method) ((Entry<?, ?>) this.commandMap.get(cmdLabel)).getKey();
                 Object methodObject = this.commandMap.get(cmdLabel).getValue();
-                de.alphaomega.it.cmdHandler.Command command = method.getAnnotation(de.alphaomega.it.cmdHandler.Command.class);
+                de.alphaomega.it.cmdhandlerapi.Command command = method.getAnnotation(de.alphaomega.it.cmdhandlerapi.Command.class);
                 if (sender instanceof Player p) {
                     if (!command.permission().equals("") && !sender.hasPermission(command.permission()) && !sender.isOp()) {
                         if (p.locale().toString().equals("de_DE")) {
@@ -103,8 +103,8 @@ public class CommandFramework implements CommandExecutor {
             int length;
             int i;
             String alias;
-            if (m.getAnnotation(de.alphaomega.it.cmdHandler.Command.class) != null) {
-                de.alphaomega.it.cmdHandler.Command command = m.getAnnotation(de.alphaomega.it.cmdHandler.Command.class);
+            if (m.getAnnotation(de.alphaomega.it.cmdhandlerapi.Command.class) != null) {
+                de.alphaomega.it.cmdhandlerapi.Command command = m.getAnnotation(de.alphaomega.it.cmdhandlerapi.Command.class);
                 if (m.getParameterTypes().length <= 1 && m.getParameterTypes()[0] == CommandArgs.class) {
                     this.registerCommand(command, command.name(), m, obj);
                     strings = command.aliases();
@@ -157,7 +157,7 @@ public class CommandFramework implements CommandExecutor {
         Bukkit.getServer().getHelpMap().addTopic(topic);
     }
 
-    public void registerCommand(de.alphaomega.it.cmdHandler.Command command, String label, Method m, Object obj) {
+    public void registerCommand(de.alphaomega.it.cmdhandlerapi.Command command, String label, Method m, Object obj) {
         this.commandMap.put(label.toLowerCase(), new SimpleEntry<>(m, obj));
         this.commandMap.put(pl.getName() + ':' + label.toLowerCase(), new SimpleEntry<>(m, obj));
         String cmdLabel = label.split("\\.")[0].toLowerCase();

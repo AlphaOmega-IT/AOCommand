@@ -1,9 +1,9 @@
 package de.alphaomega.it.commands;
 
 import de.alphaomega.it.AOCommand;
-import de.alphaomega.it.cmdHandler.Command;
-import de.alphaomega.it.cmdHandler.CommandArgs;
-import de.alphaomega.it.cmdHandler.Completer;
+import de.alphaomega.it.cmdhandlerapi.Command;
+import de.alphaomega.it.cmdhandlerapi.CommandArgs;
+import de.alphaomega.it.cmdhandlerapi.Completer;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 
