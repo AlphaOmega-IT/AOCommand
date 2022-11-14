@@ -6,7 +6,7 @@
 
     <groupId>de.alphaomega.it</groupId>
     <artifactId>AOCommand</artifactId>
-    <version>1.0</version>
+    <version>1.5</version>
     <build>
         <plugins>
             <plugin>
