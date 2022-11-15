@@ -1,9 +1,9 @@
 package de.alphaomega.it.commands;
 
 import de.alphaomega.it.AOCommand;
-import de.alphaomega.it.cmdhandlerapi.Command;
-import de.alphaomega.it.cmdhandlerapi.CommandArgs;
+import de.alphaomega.it.cmdhandlerapi.CommandArg;
 import de.alphaomega.it.cmdhandlerapi.Completer;
+import de.alphaomega.it.cmdhandlerapi.ICommand;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 
@@ -17,12 +17,12 @@ public record AOCreator(AOCommand aoCommand) {
     //there are few variables that you can change: name, aliases, permission, inGameOnly, noPermsDE (German no perms message), noPermsEN (English no perms message)
     //the parameter of the command method has to be CommandArgs, it will give you information about the arguments, the player and the command itself.
 
-    @Command(
+    @ICommand(
             name = "aocreator",
             aliases = {"aocreator"},
             permission = "aocommand.*"
     )
-    public void onCommand(final CommandArgs arg) {
+    public void onCommand(final CommandArg arg) {
         final Player p = arg.getPlayer();
         final String[] args = arg.getArgs();
 
@@ -40,7 +40,7 @@ public record AOCreator(AOCommand aoCommand) {
             name = "aocreator",
             aliases = {"aocreator"}
     )
-    public List<String> onTabComplete(final CommandArgs arg) {
+    public List<String> onTabComplete(final CommandArg arg) {
         final String[] args = arg.getArgs();
         if (args.length == 1)
             return new ArrayList<>(List.of("info"));

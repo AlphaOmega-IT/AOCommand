@@ -1,6 +1,6 @@
 package de.alphaomega.it;
 
-import de.alphaomega.it.cmdhandlerapi.CommandFramework;
+import de.alphaomega.it.cmdhandlerapi.AOCFramework;
 import de.alphaomega.it.commands.AOCreator;
 import lombok.Getter;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -9,21 +9,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class AOCommand {
 
     private final JavaPlugin pl;
-    private final CommandFramework commandFramework;
+    private final AOCFramework AOCFramework;
 
     public AOCommand(final JavaPlugin pl) {
         this.pl = pl;
-        this.commandFramework = new CommandFramework(pl);
+        this.AOCFramework = new AOCFramework(pl);
 
         registerCommands();
     }
 
     private void registerCommands() {
         //How you register for example a command.
-        this.commandFramework.registerCommands(new AOCreator(this));
+        this.AOCFramework.registerCommands(new AOCreator(this));
     }
 
     public void registerCommand(final Object commandClazz) {
-        this.commandFramework.registerCommands(commandClazz);
+        this.AOCFramework.registerCommands(commandClazz);
     }
 }

@@ -8,13 +8,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class BukkitCommand extends Command {
+public class BCommand extends Command {
 
 	private final Plugin owningPlugin;
 	private final CommandExecutor executor;
-	protected BukkitCompleter completer;
+	protected BCompleter completer;
 
-	protected BukkitCommand(String label, CommandExecutor executor, Plugin owner) {
+	protected BCommand(String label, CommandExecutor executor, Plugin owner) {
 		super(label);
 		this.executor = executor;
 		this.owningPlugin = owner;

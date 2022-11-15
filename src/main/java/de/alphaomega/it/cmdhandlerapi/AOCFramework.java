@@ -12,6 +12,7 @@ import org.bukkit.help.HelpTopicComparator;
 import org.bukkit.help.IndexHelpTopic;
 import org.bukkit.plugin.SimplePluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -21,16 +22,13 @@ import java.util.*;
 import java.util.Map.Entry;
 
 
-public class CommandFramework implements CommandExecutor {
+public class AOCFramework implements CommandExecutor {
 
     private final Map<String, Entry<Method, Object>> commandMap = new HashMap<>();
+    private final JavaPlugin pl;
     private CommandMap map;
 
-    private final JavaPlugin pl;
-
-
-    public CommandFramework(final JavaPlugin pl) {
-        this.pl = pl;
+    public AOCFramework(final JavaPlugin pl) {
         if (pl.getServer().getPluginManager() instanceof SimplePluginManager manager) {
             try {
                 Field field = SimplePluginManager.class.getDeclaredField("commandMap");
@@ -40,7 +38,8 @@ public class CommandFramework implements CommandExecutor {
                 exc.printStackTrace();
             }
         }
-        registerHelp();
+        this.pl = pl;
+        registerHelp(pl);
     }
 
     public boolean onCommand(final @NonNull CommandSender sender, final @NonNull Command cmd, final @NonNull String label, final @NonNull String[] args) {
@@ -60,7 +59,7 @@ public class CommandFramework implements CommandExecutor {
             if (this.commandMap.containsKey(cmdLabel)) {
                 Method method = (Method) ((Entry<?, ?>) this.commandMap.get(cmdLabel)).getKey();
                 Object methodObject = this.commandMap.get(cmdLabel).getValue();
-                de.alphaomega.it.cmdhandlerapi.Command command = method.getAnnotation(de.alphaomega.it.cmdhandlerapi.Command.class);
+                ICommand command = method.getAnnotation(ICommand.class);
                 if (sender instanceof Player p) {
                     if (!command.permission().equals("") && !sender.hasPermission(command.permission()) && !sender.isOp()) {
                         if (p.locale().toString().equals("de_DE")) {
@@ -71,7 +70,7 @@ public class CommandFramework implements CommandExecutor {
                         return true;
                     }
                     try {
-                        method.invoke(methodObject, new CommandArgs(sender, cmd, label, args, cmdLabel.split("\\.").length - 1));
+                        method.invoke(methodObject, new CommandArg(sender, cmd, label, args, cmdLabel.split("\\.").length - 1));
                     } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException exc) {
                         exc.printStackTrace();
                     }
@@ -82,7 +81,7 @@ public class CommandFramework implements CommandExecutor {
                         return true;
                     }
                     try {
-                        method.invoke(methodObject, new CommandArgs(console, cmd, label, args, cmdLabel.split("\\.").length - 1));
+                        method.invoke(methodObject, new CommandArg(console, cmd, label, args, cmdLabel.split("\\.").length - 1));
                     } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException exc) {
                         exc.printStackTrace();
                     }
@@ -91,26 +90,25 @@ public class CommandFramework implements CommandExecutor {
             }
         }
 
-        this.defaultCommand(new CommandArgs(sender, cmd, label, args, 0));
+        this.defaultCommand(new CommandArg(sender, cmd, label, args, 0));
         return true;
     }
 
-    public void registerCommands(Object obj) {
+    public void registerCommands(final @NotNull Object obj) {
         Method[] methods = obj.getClass().getMethods();
 
         for (Method m : methods) {
             String[] strings;
             int length;
-            int i;
             String alias;
-            if (m.getAnnotation(de.alphaomega.it.cmdhandlerapi.Command.class) != null) {
-                de.alphaomega.it.cmdhandlerapi.Command command = m.getAnnotation(de.alphaomega.it.cmdhandlerapi.Command.class);
-                if (m.getParameterTypes().length <= 1 && m.getParameterTypes()[0] == CommandArgs.class) {
+            if (m.getAnnotation(ICommand.class) != null) {
+                ICommand command = m.getAnnotation(ICommand.class);
+                if (m.getParameterTypes().length <= 1 && m.getParameterTypes()[0] == CommandArg.class) {
                     this.registerCommand(command, command.name(), m, obj);
                     strings = command.aliases();
                     length = strings.length;
 
-                    for (i = 0; i < length; ++i) {
+                    for (int i = 0; i < length; ++i) {
                         alias = strings[i];
                         this.registerCommand(command, alias, m, obj);
                     }
@@ -119,7 +117,7 @@ public class CommandFramework implements CommandExecutor {
                 }
             } else if (m.getAnnotation(Completer.class) != null) {
                 Completer comp = m.getAnnotation(Completer.class);
-                if (m.getParameterTypes().length == 1 && m.getParameterTypes()[0] == CommandArgs.class) {
+                if (m.getParameterTypes().length == 1 && m.getParameterTypes()[0] == CommandArg.class) {
                     if (m.getReturnType() != List.class) {
                         System.out.println("Unable to register tab completer " + m.getName() + ". Unexpected return type");
                     } else {
@@ -127,7 +125,7 @@ public class CommandFramework implements CommandExecutor {
                         strings = comp.aliases();
                         length = strings.length;
 
-                        for (i = 0; i < length; ++i) {
+                        for (int i = 0; i < length; ++i) {
                             alias = strings[i];
                             this.registerCompleter(alias, m, obj);
                         }
@@ -140,7 +138,7 @@ public class CommandFramework implements CommandExecutor {
 
     }
 
-    public void registerHelp() {
+    public void registerHelp(final JavaPlugin pl) {
         Set<HelpTopic> help = new TreeSet<>(HelpTopicComparator.helpTopicComparatorInstance());
 
         for (String s : this.commandMap.keySet()) {
@@ -157,12 +155,12 @@ public class CommandFramework implements CommandExecutor {
         Bukkit.getServer().getHelpMap().addTopic(topic);
     }
 
-    public void registerCommand(de.alphaomega.it.cmdhandlerapi.Command command, String label, Method m, Object obj) {
+    public void registerCommand(final @NotNull ICommand command, final @NotNull String label, final @NotNull Method m, final @NotNull Object obj) {
         this.commandMap.put(label.toLowerCase(), new SimpleEntry<>(m, obj));
         this.commandMap.put(pl.getName() + ':' + label.toLowerCase(), new SimpleEntry<>(m, obj));
         String cmdLabel = label.split("\\.")[0].toLowerCase();
         if (this.map.getCommand(cmdLabel) == null) {
-            Command cmd = new BukkitCommand(cmdLabel, this, pl);
+            Command cmd = new BCommand(cmdLabel, this, pl);
             this.map.register(pl.getName(), cmd);
         }
 
@@ -176,18 +174,18 @@ public class CommandFramework implements CommandExecutor {
 
     }
 
-    public void registerCompleter(String label, Method m, Object obj) {
+    public void registerCompleter(final @NotNull String label, final @NotNull Method m, final @NotNull Object obj) {
         String cmdLabel = label.split("\\.")[0].toLowerCase();
-        BukkitCommand bCommand;
+        BCommand bCommand;
         if (this.map.getCommand(cmdLabel) == null) {
-            bCommand = new BukkitCommand(cmdLabel, this, pl);
+            bCommand = new BCommand(cmdLabel, this, pl);
             this.map.register(pl.getName(), bCommand);
         }
 
-        if (this.map.getCommand(cmdLabel) instanceof BukkitCommand) {
-            bCommand = (BukkitCommand) this.map.getCommand(cmdLabel);
+        if (this.map.getCommand(cmdLabel) instanceof BCommand) {
+            bCommand = (BCommand) this.map.getCommand(cmdLabel);
             if (bCommand.completer == null) {
-                bCommand.completer = new BukkitCompleter();
+                bCommand.completer = new BCompleter();
             }
 
             bCommand.completer.addCompleter(label, m, obj);
@@ -196,13 +194,13 @@ public class CommandFramework implements CommandExecutor {
                 Object command = this.map.getCommand(cmdLabel);
                 Field field = command.getClass().getDeclaredField("completer");
                 field.setAccessible(true);
-                BukkitCompleter completer;
+                BCompleter completer;
                 if (field.get(command) == null) {
-                    completer = new BukkitCompleter();
+                    completer = new BCompleter();
                     completer.addCompleter(label, m, obj);
                     field.set(command, completer);
-                } else if (field.get(command) instanceof BukkitCompleter) {
-                    completer = (BukkitCompleter) field.get(command);
+                } else if (field.get(command) instanceof BCompleter) {
+                    completer = (BCompleter) field.get(command);
                     completer.addCompleter(label, m, obj);
                 } else {
                     System.out.println("Unable to register tab completer " + m.getName() + ". A tab completer is already registered for that command!");
@@ -214,7 +212,7 @@ public class CommandFramework implements CommandExecutor {
 
     }
 
-    private void defaultCommand(CommandArgs args) {
+    private void defaultCommand(final @NotNull CommandArg args) {
         args.getSender().sendMessage(args.getLabel() + " is not handled! Oh noes!");
     }
 

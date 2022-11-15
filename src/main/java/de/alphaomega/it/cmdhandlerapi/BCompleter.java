@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class BukkitCompleter implements TabCompleter {
+@SuppressWarnings("ALL")
+public class BCompleter implements TabCompleter {
 	
 	private final Map<String, Entry<Method, Object>> completer = new HashMap<>();
 	
@@ -39,7 +40,7 @@ public class BukkitCompleter implements TabCompleter {
 				Entry<Method, Object> entry = this.completer.get(cmdLabel);
 				
 				try {
-					return (List<String>) (entry.getKey()).invoke(entry.getValue(), new CommandArgs(sender, command, label, args, cmdLabel.split("\\.").length - 1));
+					return (List<String>) (entry.getKey()).invoke(entry.getValue(), new CommandArg(sender, command, label, args, cmdLabel.split("\\.").length - 1));
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException exc) {
 					exc.printStackTrace();
 				}
