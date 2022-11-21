@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public record AOCreator(AOCommand aoCommand) {
+public class AOCreator {
 
     //initialize the command using the @Command annotation
     //if you leave a value open, it will take the default value from the interface
@@ -23,12 +23,12 @@ public record AOCreator(AOCommand aoCommand) {
             permission = "aocommand.*"
     )
     public void onCommand(final CommandArg arg) {
-        final Player p = arg.getPlayer();
+        final Player player = arg.getPlayer();
         final String[] args = arg.getArgs();
 
         //do stuff
         if (args.length == 1 && args[0].equalsIgnoreCase("info"))
-            p.sendMessage(MiniMessage.miniMessage().deserialize("API from: <rainbow>https://github.com/AlphaOmega-IT</rainbow>"));
+            player.sendMessage(MiniMessage.miniMessage().deserialize("API from: <rainbow>https://github.com/AlphaOmega-IT</rainbow>"));
     }
 
     //initialize the tabCompleter using the @Completer annotation
